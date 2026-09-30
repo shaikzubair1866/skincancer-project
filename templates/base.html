@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}DermaAI — Skin Cancer Detection & Explainable Diagnostics{% endblock %}</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <!-- Medical Top Navbar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="{{ url_for('home') }}" class="nav-brand">
+                <i class="fa-solid fa-microscope brand-icon"></i>
+                <span class="brand-name">Derma<span class="brand-accent">AI</span></span>
+                <span class="brand-badge">Clinical AI v1.0</span>
+            </a>
+
+            <div class="nav-menu">
+                <a href="{{ url_for('home') }}" class="nav-link {% if request.endpoint == 'home' %}active{% endif %}">Home</a>
+                <a href="{{ url_for('about_page') }}" class="nav-link {% if request.endpoint == 'about_page' %}active{% endif %}">About AI</a>
+                <a href="{{ url_for('contact_page') }}" class="nav-link {% if request.endpoint == 'contact_page' %}active{% endif %}">Contact</a>
+                
+                {% if session.get('user') %}
+                    <a href="{{ url_for('dashboard') }}" class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}">Dashboard</a>
+                    <a href="{{ url_for('predict_page') }}" class="nav-link nav-btn-primary {% if request.endpoint == 'predict_page' %}active{% endif %}">
+                        <i class="fa-solid fa-camera-retro"></i> Scan Lesion
+                    </a>
+                    <a href="{{ url_for('history_page') }}" class="nav-link {% if request.endpoint == 'history_page' %}active{% endif %}">Scan History</a>
+                    
+                    <div class="user-dropdown">
+                        <span class="user-greeting"><i class="fa-solid fa-circle-user"></i> {{ session['user']['name'] }}</span>
+                        <a href="{{ url_for('logout_page') }}" class="nav-link nav-btn-logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+                    </div>
+                {% else %}
+                    <a href="{{ url_for('login_page') }}" class="nav-link nav-btn-secondary">Login</a>
+                    <a href="{{ url_for('signup_page') }}" class="nav-link nav-btn-primary">Sign Up</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages Container -->
+    <div class="flash-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        <i class="fa-solid {% if category == 'success' %}fa-circle-check{% elif category == 'danger' %}fa-triangle-exclamation{% else %}fa-circle-info{% endif %}"></i>
+                        <span>{{ message }}</span>
+                        <button class="alert-close" onclick="this.parentElement.remove()">&times;</button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Main Page Content -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Medical Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-col">
+                <div class="footer-brand">
+                    <i class="fa-solid fa-microscope"></i> Derma<span>AI</span>
+                </div>
+                <p class="footer-text">Deep Learning Skin Cancer Screening Platform powered by EfficientNet-B0 and Grad-CAM Explainable AI.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Clinical Navigation</h4>
+                <ul>
+                    <li><a href="{{ url_for('home') }}">Home</a></li>
+                    <li><a href="{{ url_for('predict_page') }}">Upload & Analyze</a></li>
+                    <li><a href="{{ url_for('history_page') }}">Scan Records</a></li>
+                    <li><a href="{{ url_for('about_page') }}">Model Architecture</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Medical Disclaimer</h4>
+                <p class="disclaimer-text">DermaAI is a clinical decision-support tool trained on the HAM10000 dataset. All predictions require clinical correlation by a licensed dermatologist.</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 DermaAI Diagnostics. All rights reserved. | Oracle DB Integrated</p>
+        </div>
+    </footer>
+
+    <!-- Custom JavaScript -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

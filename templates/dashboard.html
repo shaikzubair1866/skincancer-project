@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard — DermaAI Clinical Portal{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <div>
+            <h2><i class="fa-solid fa-gauge-high"></i> Clinical Dashboard</h2>
+            <p>Welcome back, <strong>{{ user['name'] }}</strong> ({{ user['email'] }})</p>
+        </div>
+        <a href="{{ url_for('predict_page') }}" class="btn btn-hero-primary">
+            <i class="fa-solid fa-cloud-arrow-up"></i> New Image Scan
+        </a>
+    </div>
+
+    <!-- Quick Stats Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon icon-blue"><i class="fa-solid fa-list-check"></i></div>
+            <div class="stat-info">
+                <div class="stat-number">{{ total_scans }}</div>
+                <div class="stat-label">Total Scans Saved</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon icon-teal"><i class="fa-solid fa-brain"></i></div>
+            <div class="stat-info">
+                <div class="stat-number">EfficientNet-B0</div>
+                <div class="stat-label">Active Inference Engine</div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon icon-purple"><i class="fa-solid fa-eye"></i></div>
+            <div class="stat-info">
+                <div class="stat-number">Grad-CAM</div>
+                <div class="stat-label">Explainability Mode</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity Table -->
+    <div class="card-box">
+        <div class="card-header">
+            <h3><i class="fa-solid fa-clock-rotate-left"></i> Recent Scan History</h3>
+            <a href="{{ url_for('history_page') }}" class="btn-link">View All History &rarr;</a>
+        </div>
+
+        {% if history %}
+            <div class="table-responsive">
+                <table class="clinical-table">
+                    <thead>
+                        <tr>
+                            <th>Scan ID</th>
+                            <th>Image Ref</th>
+                            <th>Diagnosis Code</th>
+                            <th>Confidence</th>
+                            <th>Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in history %}
+                            <tr>
+                                <td>#{{ item['prediction_id'] }}</td>
+                                <td><code>{{ item['image_reference'] }}</code></td>
+                                <td><span class="badge badge-dx">{{ item['predicted_class'] | upper }}</span></td>
+                                <td>
+                                    <div class="confidence-bar-container">
+                                        <span class="confidence-text">{{ "%.2f"|format(item['confidence'] * 100) }}%</span>
+                                        <div class="confidence-bar">
+                                            <div class="confidence-fill" style="width: {{ item['confidence'] * 100 }}%;"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ item['created_at'] }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <i class="fa-solid fa-notes-medical empty-icon"></i>
+                <p>No skin scans performed yet.</p>
+                <a href="{{ url_for('predict_page') }}" class="btn btn-hero-primary margin-top">Perform First Scan</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

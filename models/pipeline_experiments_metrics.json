@@ -1,0 +1,88 @@
+{
+  "final_production_model": {
+    "model_name": "EfficientNet-B0 + ResNet-50 + Class-Weighted Cross Entropy (Phase 3 Baseline)",
+    "status": "ACTIVE_PRODUCTION",
+    "architecture": {
+      "backbones": ["EfficientNet-B0", "ResNet-50"],
+      "ensemble_method": "Softmax Probability Fusion",
+      "fusion_weights": {
+        "efficientnet_b0": 0.65,
+        "resnet_50": 0.35
+      },
+      "tta": "5-View Test-Time Augmentation (Original, H-Flip, V-Flip, Rot+15, Rot-15)",
+      "loss_function": "Inverse Class-Frequency Weighted Cross Entropy"
+    },
+    "test_set_eval_size": 1484,
+    "metrics": {
+      "test_accuracy": 0.842992,
+      "validation_accuracy": 0.817651,
+      "macro_f1": 0.7377,
+      "macro_roc_auc": 0.9729,
+      "macro_precision": 0.7503,
+      "macro_recall": 0.7318
+    },
+    "per_class_metrics": {
+      "akiec": {
+        "full_name": "Actinic Keratosis (AKIEC)",
+        "precision": 0.7561,
+        "recall": 0.5439,
+        "f1_score": 0.6327,
+        "auc_roc": 0.9800
+      },
+      "bcc": {
+        "full_name": "Basal Cell Carcinoma (BCC)",
+        "precision": 0.7701,
+        "recall": 0.8701,
+        "f1_score": 0.8171,
+        "auc_roc": 0.9927
+      },
+      "bkl": {
+        "full_name": "Benign Keratosis (BKL)",
+        "precision": 0.6730,
+        "recall": 0.7086,
+        "f1_score": 0.6903,
+        "auc_roc": 0.9622
+      },
+      "df": {
+        "full_name": "Dermatofibroma (DF)",
+        "precision": 0.6250,
+        "recall": 0.6667,
+        "f1_score": 0.6452,
+        "auc_roc": 0.9966
+      },
+      "mel": {
+        "full_name": "Melanoma (MEL)",
+        "precision": 0.5860,
+        "recall": 0.5509,
+        "f1_score": 0.5679,
+        "auc_roc": 0.9236
+      },
+      "nv": {
+        "full_name": "Melanocytic Nevi (NV)",
+        "precision": 0.9219,
+        "recall": 0.9303,
+        "f1_score": 0.9261,
+        "auc_roc": 0.9622
+      },
+      "vasc": {
+        "full_name": "Vascular Lesion (VASC)",
+        "precision": 0.9200,
+        "recall": 0.8519,
+        "f1_score": 0.8846,
+        "auc_roc": 0.9993
+      }
+    },
+    "checkpoints": {
+      "efficientnet_b0": "backups/79_51_baseline/efficientnet_b0_phase3_best.pth",
+      "resnet_50": "backups/79_51_baseline/resnet50_phase3_best.pth"
+    }
+  },
+  "previous_baseline_reference": {
+    "model_name": "Phase 3 Baseline (Exp A)",
+    "status": "RETIRED_AND_BACKED_UP",
+    "test_accuracy": 0.795148,
+    "macro_f1": 0.6869,
+    "macro_roc_auc": 0.9615,
+    "backup_location": "backup/"
+  }
+}

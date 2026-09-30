@@ -1,0 +1,6 @@
+cd "C:\Users\isayy\OneDrive\Documents\skincancer project"
+python app.py
+
+cd "C:\Users\isayy\OneDrive\Documents\skincancer project"
+.\venv\Scripts\Activate.ps1
+python app.py

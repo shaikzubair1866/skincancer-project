@@ -1,0 +1,195 @@
+{
+  "experiment_name": "EfficientNet-B0 + ResNet-50 + InceptionV3 3-Model Ensemble",
+  "baseline_test_accuracy": 0.842992,
+  "new_ensemble_test_accuracy": 0.911725,
+  "improvement_over_baseline": "+6.87%",
+  "is_superior_to_baseline": true,
+  "official_model_recommendation": "RECOMMEND_NEW_CANDIDATE_MODEL",
+  "decision_reasoning": "The 3-model ensemble achieved 91.17% test accuracy, outperforming the current baseline of 84.30% by +6.87%.",
+  "selected_fusion_weights": {
+    "efficientnet_b0": 0.45,
+    "resnet_50": 0.3,
+    "inception_v3": 0.25
+  },
+  "validation_weight_search_grid": [
+    {
+      "weights_ratio": [
+        0.5,
+        0.3,
+        0.2
+      ],
+      "val_accuracy": 0.904987,
+      "val_macro_f1": 0.8545
+    },
+    {
+      "weights_ratio": [
+        0.5,
+        0.25,
+        0.25
+      ],
+      "val_accuracy": 0.902291,
+      "val_macro_f1": 0.8528
+    },
+    {
+      "weights_ratio": [
+        0.45,
+        0.3,
+        0.25
+      ],
+      "val_accuracy": 0.907008,
+      "val_macro_f1": 0.8574
+    },
+    {
+      "weights_ratio": [
+        0.45,
+        0.25,
+        0.3
+      ],
+      "val_accuracy": 0.903639,
+      "val_macro_f1": 0.8538
+    },
+    {
+      "weights_ratio": [
+        0.4,
+        0.3,
+        0.3
+      ],
+      "val_accuracy": 0.90566,
+      "val_macro_f1": 0.8559
+    },
+    {
+      "weights_ratio": [
+        0.4,
+        0.35,
+        0.25
+      ],
+      "val_accuracy": 0.90566,
+      "val_macro_f1": 0.8532
+    },
+    {
+      "weights_ratio": [
+        0.35,
+        0.35,
+        0.3
+      ],
+      "val_accuracy": 0.904987,
+      "val_macro_f1": 0.8459
+    }
+  ],
+  "final_test_metrics": {
+    "accuracy": 0.911725,
+    "macro_precision": 0.8876,
+    "macro_recall": 0.8702,
+    "macro_f1": 0.878,
+    "macro_roc_auc": 0.9897,
+    "per_class_metrics": {
+      "akiec": {
+        "precision": 0.8837,
+        "recall": 0.7755,
+        "f1_score": 0.8261,
+        "auc_roc": 0.9946
+      },
+      "bcc": {
+        "precision": 0.8659,
+        "recall": 0.9342,
+        "f1_score": 0.8987,
+        "auc_roc": 0.9966
+      },
+      "bkl": {
+        "precision": 0.8491,
+        "recall": 0.8544,
+        "f1_score": 0.8517,
+        "auc_roc": 0.9866
+      },
+      "df": {
+        "precision": 0.9375,
+        "recall": 0.8824,
+        "f1_score": 0.9091,
+        "auc_roc": 0.999
+      },
+      "mel": {
+        "precision": 0.7212,
+        "recall": 0.7346,
+        "f1_score": 0.7278,
+        "auc_roc": 0.9676
+      },
+      "nv": {
+        "precision": 0.9559,
+        "recall": 0.954,
+        "f1_score": 0.9549,
+        "auc_roc": 0.9836
+      },
+      "vasc": {
+        "precision": 1.0,
+        "recall": 0.9565,
+        "f1_score": 0.9778,
+        "auc_roc": 1.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        38,
+        2,
+        6,
+        0,
+        1,
+        2,
+        0
+      ],
+      [
+        2,
+        71,
+        2,
+        0,
+        1,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        135,
+        0,
+        11,
+        11,
+        0
+      ],
+      [
+        1,
+        0,
+        0,
+        15,
+        1,
+        0,
+        0
+      ],
+      [
+        0,
+        4,
+        8,
+        1,
+        119,
+        30,
+        0
+      ],
+      [
+        1,
+        5,
+        8,
+        0,
+        32,
+        953,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        22
+      ]
+    ]
+  }
+}

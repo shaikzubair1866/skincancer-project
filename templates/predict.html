@@ -1,0 +1,279 @@
+{% extends "base.html" %}
+
+{% block title %}Scan & Analyze — DermaAI Clinical Diagnostics{% endblock %}
+
+{% block content %}
+<div class="predict-container">
+    <div class="page-title">
+        <h2><i class="fa-solid fa-stethoscope"></i> Skin Lesion Analysis & Grad-CAM Visualization</h2>
+        <p>Upload a dermoscopic skin image (.jpg, .png, .webp) for AI analysis</p>
+    </div>
+
+    <!-- Upload Form Card -->
+    <div class="card-box upload-card" id="uploadCard">
+        <form id="predictForm" enctype="multipart/form-data">
+            <div class="drop-zone" id="dropZone">
+                <i class="fa-solid fa-cloud-arrow-up drop-icon"></i>
+                <h3>Drag & Drop Dermoscopy Image Here</h3>
+                <p>or click anywhere to select file from your computer (Max 10MB)</p>
+                <input type="file" id="fileInput" name="file" accept=".jpg,.jpeg,.png,.webp" required style="display: none;">
+                <button type="button" class="btn btn-hero-secondary" id="selectFileBtn">Select Image File</button>
+            </div>
+
+            <div class="file-preview-container" id="filePreviewContainer" style="display: none;">
+                <div class="preview-header">
+                    <span id="fileName">Selected_Image.jpg</span>
+                    <button type="button" class="btn-remove" id="btnRemove"><i class="fa-solid fa-trash"></i> Remove</button>
+                </div>
+                <img id="imagePreview" src="" alt="Selected Preview">
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-hero-primary btn-block" id="btnSubmit">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> Run AI Diagnosis & Grad-CAM Heatmap
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Loading Spinner Overlay -->
+    <div class="loading-overlay" id="loadingSpinner" style="display: none;">
+        <div class="spinner-card">
+            <div class="medical-spinner"></div>
+            <h3>Running Deep Learning Inference...</h3>
+            <p>Analyzing lesion features with EfficientNet-B0 and generating Grad-CAM visual heatmaps</p>
+        </div>
+    </div>
+
+    <!-- Prediction Results Display Container -->
+    <div class="results-container" id="resultsContainer" style="display: none;">
+        <div class="result-header">
+            <h2><i class="fa-solid fa-square-poll-vertical"></i> Diagnostic Assessment Results</h2>
+            <button type="button" class="btn btn-hero-secondary" onclick="resetForm()"><i class="fa-solid fa-rotate-left"></i> Analyze Another Image</button>
+        </div>
+
+        <!-- Main Risk Alert Banner -->
+        <div class="risk-banner" id="riskBanner">
+            <div class="risk-badge" id="riskBadge">HIGH RISK</div>
+            <div class="risk-details">
+                <h3 id="resCategoryName">Melanoma (MEL)</h3>
+                <p id="resClinicalCategory">Malignant Skin Cancer</p>
+            </div>
+        </div>
+
+        <div class="results-grid">
+            <!-- Left Side: Images (Uploaded vs Grad-CAM Overlay) -->
+            <div class="card-box image-comparison-card">
+                <h3>Visual Explainability (Grad-CAM)</h3>
+                <div class="image-grid">
+                    <div class="image-box">
+                        <label>Original Dermoscopy Image</label>
+                        <img id="resOrigImage" src="" alt="Original Upload">
+                    </div>
+                    <div class="image-box">
+                        <label>Grad-CAM Feature Heatmap</label>
+                        <img id="resCamImage" src="" alt="Grad-CAM Overlay">
+                    </div>
+                </div>
+                <div class="gradcam-legend">
+                    <span class="legend-color legend-red"></span> Hotspot (High AI Focus)
+                    <span class="legend-color legend-blue"></span> Background (Low AI Focus)
+                </div>
+            </div>
+
+            <!-- Right Side: Classification & Probabilities -->
+            <div class="card-box metrics-card">
+                <h3>Classification Breakdown</h3>
+                
+                <div class="metric-row">
+                    <span class="metric-key">Top Diagnosis:</span>
+                    <span class="metric-val" id="resTopDx">MEL</span>
+                </div>
+                
+                <div class="metric-row">
+                    <span class="metric-key">Confidence Score:</span>
+                    <span class="metric-val highlight-val" id="resConfidence">99.45%</span>
+                </div>
+
+                <h4>Probability Distribution Across Diagnoses:</h4>
+                <div class="prob-distribution" id="probDistribution">
+                    <!-- Dynamic Bars inserted via JS -->
+                </div>
+
+                <div class="recommendation-box">
+                    <h4><i class="fa-solid fa-user-doctor"></i> Medical Recommendation</h4>
+                    <p id="resRecommendation">URGENT: High suspicion for Melanoma. Immediate dermatologist evaluation recommended.</p>
+                </div>
+
+                <div class="disclaimer-box">
+                    <p id="resDisclaimer">DISCLAIMER: Supportive diagnostic tool only. Does not replace professional biopsy.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const fileInput = document.getElementById('fileInput');
+    const dropZone = document.getElementById('dropZone');
+    const imagePreview = document.getElementById('imagePreview');
+    const fileName = document.getElementById('fileName');
+    const filePreviewContainer = document.getElementById('filePreviewContainer');
+    const btnRemove = document.getElementById('btnRemove');
+    const predictForm = document.getElementById('predictForm');
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    const resultsContainer = document.getElementById('resultsContainer');
+    const uploadCard = document.getElementById('uploadCard');
+
+    // Click to select file handlers (clicking anywhere inside dropZone triggers file input)
+    dropZone.addEventListener('click', (e) => {
+        if (e.target !== fileInput) {
+            fileInput.click();
+        }
+    });
+
+    const selectFileBtn = document.getElementById('selectFileBtn');
+    if (selectFileBtn) {
+        selectFileBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            fileInput.click();
+        });
+    }
+
+    // Drag & Drop handlers
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('dragover');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        if (e.dataTransfer.files.length) {
+            fileInput.files = e.dataTransfer.files;
+            handleFileSelect();
+        }
+    });
+
+    fileInput.addEventListener('change', handleFileSelect);
+
+    function handleFileSelect() {
+        if (fileInput.files && fileInput.files[0]) {
+            const file = fileInput.files[0];
+            fileName.textContent = file.name;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imagePreview.src = e.target.result;
+                filePreviewContainer.style.display = 'block';
+                dropZone.style.display = 'none';
+            }
+            reader.readAsDataURL(file);
+        }
+    }
+
+    btnRemove.addEventListener('click', () => {
+        fileInput.value = '';
+        filePreviewContainer.style.display = 'none';
+        dropZone.style.display = 'block';
+    });
+
+    function resetForm() {
+        fileInput.value = '';
+        filePreviewContainer.style.display = 'none';
+        dropZone.style.display = 'block';
+        resultsContainer.style.display = 'none';
+        uploadCard.style.display = 'block';
+    }
+
+    predictForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!fileInput.files[0]) return;
+
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+
+        loadingSpinner.style.display = 'flex';
+
+        try {
+            const response = await fetch('/api/predict', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+            console.log("API RESPONSE:", data);
+            loadingSpinner.style.display = 'none';
+
+            if (!data.success) {
+                alert(data.message || 'Prediction failed.');
+                return;
+            }
+
+            renderResults(data);
+        } catch (err) {
+            loadingSpinner.style.display = 'none';
+            alert('Server network error. Please try again.');
+        }
+    });
+
+    function renderResults(data) {
+        uploadCard.style.display = 'none';
+        resultsContainer.style.display = 'block';
+
+        const assessment = data.clinical_assessment;
+        document.getElementById('resCategoryName').textContent = assessment.category_name;
+        document.getElementById('resClinicalCategory').textContent = assessment.clinical_category;
+        
+        const riskBadge = document.getElementById('riskBadge');
+        riskBadge.textContent = assessment.risk_level + ' RISK';
+        riskBadge.className = 'risk-badge risk-' + assessment.urgency_badge;
+
+        document.getElementById('resOrigImage').src = data.orig_image_b64;
+        document.getElementById('resCamImage').src = data.gradcam_image_b64;
+
+        document.getElementById('resTopDx').textContent = data.predicted_class.toUpperCase();
+        document.getElementById('resConfidence').textContent = (data.confidence * 100).toFixed(2) + '%';
+
+        document.getElementById('resRecommendation').textContent = assessment.recommendation;
+        document.getElementById('resDisclaimer').textContent = assessment.disclaimer;
+
+        // Render Probabilities Distribution
+        const probBox = document.getElementById('probDistribution');
+        probBox.innerHTML = '';
+
+        const classFullNames = {
+            "akiec": "Actinic Keratosis",
+            "bcc": "Basal Cell Carcinoma",
+            "bkl": "Benign Keratosis",
+            "df": "Dermatofibroma",
+            "mel": "Melanoma",
+            "nv": "Melanocytic Nevi",
+            "vasc": "Vascular Lesion"
+        };
+
+        for (const [cls, prob] of Object.entries(data.probabilities)) {
+            const pct = (prob * 100).toFixed(2);
+            const isTop = cls === data.predicted_class;
+            
+            const item = document.createElement('div');
+            item.className = 'prob-item' + (isTop ? ' top-prob' : '');
+            item.innerHTML = `
+                <div class="prob-label">
+                    <span>${cls.toUpperCase()} (${classFullNames[cls] || cls})</span>
+                    <span>${pct}%</span>
+                </div>
+                <div class="prob-bar">
+                    <div class="prob-fill ${isTop ? 'top-fill' : ''}" style="width: ${pct}%;"></div>
+                </div>
+            `;
+            probBox.appendChild(item);
+        }
+    }
+</script>
+{% endblock %}

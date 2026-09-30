@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Scan History — DermaAI Clinical Records{% endblock %}
+
+{% block content %}
+<div class="history-container">
+    <div class="page-title">
+        <h2><i class="fa-solid fa-clock-rotate-left"></i> Historical Patient Scan Records</h2>
+        <p>Retrieved from Oracle Database for user <strong>{{ user['name'] }}</strong></p>
+    </div>
+
+    <div class="card-box">
+        {% if history %}
+            <div class="table-responsive">
+                <table class="clinical-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Image Reference</th>
+                            <th>Diagnosis Code</th>
+                            <th>Clinical Category</th>
+                            <th>Confidence</th>
+                            <th>Risk Tier</th>
+                            <th>Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in history %}
+                            <tr>
+                                <td>#{{ item['prediction_id'] }}</td>
+                                <td><code>{{ item['image_reference'] }}</code></td>
+                                <td><span class="badge badge-dx">{{ item['predicted_class'] | upper }}</span></td>
+                                <td><strong>{{ item['category_name'] }}</strong></td>
+                                <td>
+                                    <div class="confidence-bar-container">
+                                        <span class="confidence-text">{{ "%.2f"|format(item['confidence'] * 100) }}%</span>
+                                        <div class="confidence-bar">
+                                            <div class="confidence-fill" style="width: {{ item['confidence'] * 100 }}%;"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="risk-pill risk-{{ item['urgency_badge'] }}">
+                                        {{ item['risk_level'] }} RISK
+                                    </span>
+                                </td>
+                                <td>{{ item['created_at'] }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <i class="fa-solid fa-box-archive empty-icon"></i>
+                <h3>No Previous Scan Records Found</h3>
+                <p>You have not uploaded any skin lesion images for prediction yet.</p>
+                <a href="{{ url_for('predict_page') }}" class="btn btn-hero-primary margin-top">
+                    <i class="fa-solid fa-camera-retro"></i> Perform New Scan
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

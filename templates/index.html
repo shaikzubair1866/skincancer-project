@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Home — DermaAI Skin Cancer Detection System{% endblock %}
+
+{% block content %}
+<section class="hero-section">
+    <div class="hero-container">
+        <div class="hero-badge">
+            <i class="fa-solid fa-shield-halved"></i> AI-Powered Dermoscopy Diagnostics
+        </div>
+        <h1 class="hero-title">Early Detection Save Lives.<br><span class="gradient-text">Explainable Skin Cancer Screening.</span></h1>
+
+        <div class="hero-actions">
+            {% if session.get('user') %}
+                <a href="{{ url_for('predict_page') }}" class="btn btn-hero-primary">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> Upload Skin Image
+                </a>
+                <a href="{{ url_for('dashboard') }}" class="btn btn-hero-secondary">
+                    <i class="fa-solid fa-chart-line"></i> View Dashboard
+                </a>
+            {% else %}
+                <a href="{{ url_for('signup_page') }}" class="btn btn-hero-primary">
+                    <i class="fa-solid fa-user-plus"></i> Get Started
+                </a>
+                <a href="{{ url_for('login_page') }}" class="btn btn-hero-secondary">
+                    <i class="fa-solid fa-right-to-bracket"></i> Login to Account
+                </a>
+            {% endif %}
+        </div>
+
+        <!-- Metrics Showcase Bar -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-value">91.17%</div>
+                <div class="metric-label">Verified Test Accuracy</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">98.97%</div>
+                <div class="metric-label">Macro ROC-AUC Performance</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">0.8780</div>
+                <div class="metric-label">Macro F1-Score</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">Grad-CAM</div>
+                <div class="metric-label">Visual Feature Explainability</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
